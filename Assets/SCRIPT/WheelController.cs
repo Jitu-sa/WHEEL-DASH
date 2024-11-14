@@ -1,13 +1,9 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class WheelController : MonoBehaviour
 {
-    [SerializeField] float maxRotationSpeed = 300f;
-    [SerializeField] float acceleration = 20f; 
-    [SerializeField] float moveForce = 2.5f;
-    [SerializeField] float currentRotationSpeed = 0f; 
-    float inputDirection = 0f;
-    [SerializeField] float friction = 0;
+    [SerializeField] float torqueAmount = 200f;
     Rigidbody2D rb;
 
     void Start()
@@ -17,59 +13,43 @@ public class WheelController : MonoBehaviour
 
     void Update()
     {
-        WheelRotating();
+        Torque();
     }
 
-    void FixedUpdate()
+    void Torque()
     {
-        WheelForce();
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            rb.AddTorque(-torqueAmount * Time.deltaTime);
+        }
+        else if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            rb.AddTorque(torqueAmount * Time.deltaTime);
+        }
     }
 
     void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.gameObject.tag=="dirt")
+        if (collision.gameObject.tag=="default") 
         {
-            rb.sharedMaterial.friction = 1;
-            friction = 1;
+            rb.sharedMaterial.friction = 2;
+            torqueAmount = 200;
+            rb.drag = 0;
         }
 
-        else if (collision.gameObject.tag=="sand") 
+        else if (collision.gameObject.tag == "slipper")
         {
-            rb.sharedMaterial.friction = 0;
-            friction = 0;
+            rb.sharedMaterial.friction =0;
+            torqueAmount= 300;
+            rb.drag = 0;
+        }
+
+        else if (collision.gameObject.tag == "Gummy")
+        {
+            rb.sharedMaterial.friction = 5;
+            torqueAmount=100;
+            rb.drag = 1;
         }
     }
 
-    void OnCollisionExit2D(Collision2D collision)
-    {
-        friction = 0;
-    }
-
-    void WheelRotating()
-    {
-        if (Input.GetKey(KeyCode.RightArrow))
-            inputDirection = 1f;
-        else if (Input.GetKey(KeyCode.LeftArrow))
-            inputDirection = -1f;
-        else
-            inputDirection = 0f;
-
-        if (inputDirection != 0)
-        {
-            currentRotationSpeed += inputDirection * acceleration * Time.deltaTime;
-            currentRotationSpeed = Mathf.Clamp(currentRotationSpeed, -maxRotationSpeed, maxRotationSpeed);
-        }
-        else
-        {
-            currentRotationSpeed = Mathf.Lerp(currentRotationSpeed, 0, Time.deltaTime * 100);
-        }
-
-        transform.Rotate(0, 0, -currentRotationSpeed * Time.deltaTime);
-    }
-
-    void WheelForce()
-    {
-        float forwardMovement = currentRotationSpeed * moveForce *friction* Time.fixedDeltaTime;
-        rb.AddForce(new Vector2(forwardMovement, 0), ForceMode2D.Force);
-    }
 }

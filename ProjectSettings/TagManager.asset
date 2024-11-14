@@ -6,6 +6,9 @@ TagManager:
   tags:
   - sand
   - dirt
+  - default
+  - slipper
+  - Gummy
   layers:
   - Default
   - TransparentFX
