@@ -9,6 +9,7 @@ TagManager:
   - default
   - slipper
   - Gummy
+  - Wheel
   layers:
   - Default
   - TransparentFX
